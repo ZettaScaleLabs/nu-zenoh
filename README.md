@@ -1,13 +1,13 @@
 # `nu-zenoh`
 
-## `zesh`: Zenoh Shell
+## `nuze`: Zenoh Nu Shell
 
-Pronounced _tzee shell_, `zesh` is an experimental shell built with [Nushell](https://www.nushell.sh/)
+`nuze` is an experimental Zenoh shell built with [Nushell](https://www.nushell.sh/)
 to provide an interactive environment for debugging [Zenoh](https://zenoh.io/) systems. To get started:
 
 ```bash
-cargo install --git https://github.com/ZettaScaleLabs/nu-zenoh.git zesh
-zesh
+cargo install --git https://github.com/ZettaScaleLabs/nu-zenoh.git nuze
+nuze
 ```
 
 A REPL instance supports multiple Zenoh sessions each identified by a name (string).

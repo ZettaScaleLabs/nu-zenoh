@@ -3,7 +3,7 @@ authors.workspace = true
 edition.workspace = true
 homepage.workspace = true
 license.workspace = true
-name = "zesh"
+name = "nuze"
 repository.workspace = true
 version.workspace = true
 

@@ -3090,6 +3090,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "nuze"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "ctrlc",
+ "nu-cli",
+ "nu-cmd-extra",
+ "nu-cmd-lang",
+ "nu-command",
+ "nu-explore",
+ "nu-protocol",
+ "nu-zenoh",
+]
+
+[[package]]
 name = "objc2-core-foundation"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7301,21 +7316,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.104",
-]
-
-[[package]]
-name = "zesh"
-version = "0.1.0"
-dependencies = [
- "clap",
- "ctrlc",
- "nu-cli",
- "nu-cmd-extra",
- "nu-cmd-lang",
- "nu-command",
- "nu-explore",
- "nu-protocol",
- "nu-zenoh",
 ]
 
 [[package]]
