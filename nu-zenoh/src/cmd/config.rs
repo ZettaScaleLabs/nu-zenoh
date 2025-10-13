@@ -12,11 +12,11 @@
 //   ZettaScale Zenoh Team, <zenoh@zettascale.tech>
 //
 use nu_protocol::{
+    PipelineData, ShellError, Signature, Type,
     engine::{Call, Command, EngineState, Stack},
-    PipelineData, ShellError, Signature, Type, Value,
 };
 
-use crate::{call_ext2::CallExt2, signature_ext::SignatureExt, State};
+use crate::{State, call_ext2::CallExt2, conv, signature_ext::SignatureExt};
 
 #[derive(Clone)]
 pub(crate) struct Config {
@@ -58,6 +58,14 @@ impl Command for Config {
                 sess.config().lock().to_string()
             })?;
 
-        Ok(PipelineData::Value(Value::string(config, call.head), None))
+        let nujson = nu_json::from_str::<nu_json::Value>(&config.trim()).map_err(|e| {
+            nu_protocol::LabeledError::new("Config deserialization failed")
+                .with_label(format!("Config deserialization failed: {e}"), call.head)
+        })?;
+
+        Ok(PipelineData::Value(
+            conv::nujson_to_value(nujson, call.head),
+            None,
+        ))
     }
 }

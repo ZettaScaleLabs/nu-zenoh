@@ -11,7 +11,7 @@
 // Contributors:
 //   ZettaScale Zenoh Team, <zenoh@zettascale.tech>
 //
-use nu_protocol::{ast, engine::EngineState, record, IntoValue, Record, ShellError, Span, Value};
+use nu_protocol::{IntoValue, Record, ShellError, Span, Value, ast, engine::EngineState, record};
 use zenoh::{bytes::ZBytes, query::Query};
 
 /// Helper function to convert bytes to Nu value (string if valid UTF-8, otherwise bytes)
@@ -187,4 +187,43 @@ pub(crate) fn value_to_json_value(
             value_to_json_value(engine_state, &collected, call_span, serialize_types)?
         }
     })
+}
+
+// Copied verbatim from https://github.com/nushell/nushell/blob/8229ccb7fa42cb3f3e740cd642efb6e48b5860ba/crates/nu-command/src/formats/from/json.rs#L151C1-L187C2
+pub(crate) fn nujson_to_value(value: nu_json::Value, span: Span) -> Value {
+    match value {
+        nu_json::Value::Array(array) => Value::list(
+            array
+                .into_iter()
+                .map(|x| nujson_to_value(x, span))
+                .collect(),
+            span,
+        ),
+        nu_json::Value::Bool(b) => Value::bool(b, span),
+        nu_json::Value::F64(f) => Value::float(f, span),
+        nu_json::Value::I64(i) => Value::int(i, span),
+        nu_json::Value::Null => Value::nothing(span),
+        nu_json::Value::Object(k) => Value::record(
+            k.into_iter()
+                .map(|(k, v)| (k, nujson_to_value(v, span)))
+                .collect(),
+            span,
+        ),
+        nu_json::Value::U64(u) => {
+            if u > i64::MAX as u64 {
+                Value::error(
+                    ShellError::CantConvert {
+                        to_type: "i64 sized integer".into(),
+                        from_type: "value larger than i64".into(),
+                        span,
+                        help: None,
+                    },
+                    span,
+                )
+            } else {
+                Value::int(u as i64, span)
+            }
+        }
+        nu_json::Value::String(s) => Value::string(s, span),
+    }
 }
