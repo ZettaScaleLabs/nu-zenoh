@@ -28,5 +28,11 @@ the argument `-s, --session` is supplied:
 To get the list of available commands:
 
 ```console
-> zenoh --help
+> help zenoh
+```
+
+To get help on a specific command:
+
+```console
+> help zenoh liveliness decl
 ```
