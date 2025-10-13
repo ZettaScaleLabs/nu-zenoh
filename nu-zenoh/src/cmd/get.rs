@@ -12,12 +12,12 @@
 //   ZettaScale Zenoh Team, <zenoh@zettascale.tech>
 //
 use nu_engine::CallExt;
-use nu_protocol::{engine, ListStream, PipelineData, ShellError, Signature, SyntaxShape, Type};
+use nu_protocol::{ListStream, PipelineData, ShellError, Signature, SyntaxShape, Type, engine};
 use zenoh::Wait;
 
 use crate::{
-    call_ext2::CallExt2, conv, interruptible_channel::InterruptibleChannel,
-    signature_ext::SignatureExt, State,
+    State, call_ext2::CallExt2, conv, interruptible_channel::InterruptibleChannel,
+    signature_ext::SignatureExt,
 };
 
 #[derive(Clone)]

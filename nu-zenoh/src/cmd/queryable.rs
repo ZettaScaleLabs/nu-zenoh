@@ -13,30 +13,30 @@
 //
 use nu_engine::{CallExt, ClosureEval};
 use nu_protocol::{
-    engine::{Call, Closure, Command, EngineState, Stack},
     ListStream, PipelineData, ShellError, Signature, SyntaxShape, Type, Value,
+    engine::{Call, Closure, Command, EngineState, Stack},
 };
 use zenoh::Wait;
 
 use crate::{
-    call_ext2::CallExt2, conv, interruptible_channel::InterruptibleChannel,
-    signature_ext::SignatureExt, State,
+    State, call_ext2::CallExt2, conv, interruptible_channel::InterruptibleChannel,
+    signature_ext::SignatureExt,
 };
 
 #[derive(Clone)]
-pub(crate) struct Reply {
+pub(crate) struct Queryable {
     state: State,
 }
 
-impl Reply {
+impl Queryable {
     pub(crate) fn new(state: State) -> Self {
         Self { state }
     }
 }
 
-impl Command for Reply {
+impl Command for Queryable {
     fn name(&self) -> &str {
-        "zenoh reply"
+        "zenoh queryable"
     }
 
     fn signature(&self) -> Signature {

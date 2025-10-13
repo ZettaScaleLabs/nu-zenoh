@@ -17,10 +17,10 @@ use std::{
 };
 
 use nu_protocol::{
-    engine::{EngineState, StateWorkingSet},
     LabeledError,
+    engine::{EngineState, StateWorkingSet},
 };
-use zenoh::{internal::runtime::Runtime, Session, Wait};
+use zenoh::{Session, Wait, internal::runtime::Runtime};
 
 mod call_ext2;
 mod cmd;
@@ -69,7 +69,7 @@ pub fn add_zenoh_context(mut engine_state: EngineState, options: Config) -> Engi
         working_set.add_decl(Box::new(cmd::session::close::Close::new(state.clone())));
 
         working_set.add_decl(Box::new(cmd::log_path::LogPath::new(state.clone())));
-        working_set.add_decl(Box::new(cmd::reply::Reply::new(state.clone())));
+        working_set.add_decl(Box::new(cmd::queryable::Queryable::new(state.clone())));
         working_set.add_decl(Box::new(cmd::scout::Scout::new(state.clone())));
         working_set.add_decl(Box::new(cmd::info::Info::new(state.clone())));
         working_set.add_decl(Box::new(cmd::config::Config::new(state)));
