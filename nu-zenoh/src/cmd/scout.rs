@@ -11,15 +11,19 @@
 // Contributors:
 //   ZettaScale Zenoh Team, <zenoh@zettascale.tech>
 //
+
+use std::time::Instant;
+
 use nu_protocol::{
+    IntoValue, ListStream, PipelineData, ShellError, Signature, Span, SyntaxShape, Type, Value,
     engine::{Call, Command, EngineState, Stack},
-    record, IntoValue, ListStream, PipelineData, ShellError, Signature, Type,
+    record,
 };
-use zenoh::{config::WhatAmIMatcher, Wait};
+use zenoh::{Wait, config::WhatAmIMatcher, scouting::Hello};
 
 use crate::{
-    call_ext2::CallExt2, interruptible_channel::InterruptibleChannel, signature_ext::SignatureExt,
-    State,
+    State, call_ext2::CallExt2, interruptible_channel::InterruptibleChannel,
+    signature_ext::SignatureExt,
 };
 
 #[derive(Clone)]
@@ -41,6 +45,7 @@ impl Command for Scout {
     fn signature(&self) -> Signature {
         Signature::build(self.name())
             .session()
+            .named("timeout", SyntaxShape::Duration, "Scouting timeout", None)
             .zenoh_category()
             .input_output_type(Type::Nothing, Type::record())
     }
@@ -77,16 +82,29 @@ impl Command for Scout {
                     .with_label(format!("Zenoh scout failed: {e}"), call.head)
             })?;
 
-        let iter = InterruptibleChannel::with_data(rx, engine_state.signals().clone(), scout)
-            .map(move |hello| {
-                record!(
+        fn hello_to_value(hello: &Hello, span: Span) -> Value {
+            record!(
                     "zid" => hello.zid().to_string().into_value(span),
                     "whatami" => hello.whatami().to_string().into_value(span),
                     "locators" => hello.locators().iter().map(|l| l.to_string().into_value(span)).collect::<Vec<_>>().into_value(span),
                 )
                 .into_value(span)
-            });
+        }
 
-        Ok(ListStream::new(iter, span, engine_state.signals().clone()).into())
+        if let Some(timeout) = call.timeout(engine_state, stack)? {
+            let deadline = Instant::now() + timeout;
+            let mut values = Vec::new();
+
+            while let Ok(hello) = rx.recv_deadline(deadline) {
+                values.push(hello_to_value(&hello, span))
+            }
+
+            Ok(PipelineData::Value(Value::list(values, span), None))
+        } else {
+            let iter = InterruptibleChannel::with_data(rx, engine_state.signals().clone(), scout)
+                .map(move |hello| hello_to_value(&hello, span));
+
+            Ok(ListStream::new(iter, span, engine_state.signals().clone()).into())
+        }
     }
 }
