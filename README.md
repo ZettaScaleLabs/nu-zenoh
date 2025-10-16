@@ -2,6 +2,8 @@
 
 ## `nuze`: Zenoh Nu Shell
 
+[![asciicast](https://asciinema.org/a/Uy6yvpT86vWzYW5DmWBfLcc8V.svg)](https://asciinema.org/a/Uy6yvpT86vWzYW5DmWBfLcc8V)
+
 `nuze` is an experimental Zenoh shell built with [Nushell](https://www.nushell.sh/)
 to provide an interactive environment for debugging [Zenoh](https://zenoh.io/) systems. To get started:
 
