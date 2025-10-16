@@ -38,7 +38,7 @@ impl Command for Config {
         Signature::build(self.name())
             .session()
             .zenoh_category()
-            .input_output_type(Type::Nothing, Type::String)
+            .input_output_type(Type::Nothing, Type::record())
     }
 
     fn description(&self) -> &str {
