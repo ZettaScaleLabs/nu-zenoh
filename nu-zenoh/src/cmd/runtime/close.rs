@@ -1,11 +1,11 @@
 use nu_engine::CallExt;
 use nu_protocol::{
-    PipelineData, ShellError, Signature, SyntaxShape, Type, Value,
     engine::{Call, Command, EngineState, Stack},
+    PipelineData, ShellError, Signature, SyntaxShape, Type, Value,
 };
 use zenoh::Wait;
 
-use crate::{State, signature_ext::SignatureExt};
+use crate::{signature_ext::SignatureExt, State};
 
 #[derive(Clone)]
 pub(crate) struct Close {

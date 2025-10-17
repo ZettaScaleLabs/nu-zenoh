@@ -15,15 +15,15 @@
 use std::time::Instant;
 
 use nu_protocol::{
-    IntoValue, ListStream, PipelineData, ShellError, Signature, Span, SyntaxShape, Type, Value,
     engine::{Call, Command, EngineState, Stack},
-    record,
+    record, IntoValue, ListStream, PipelineData, ShellError, Signature, Span, SyntaxShape, Type,
+    Value,
 };
-use zenoh::{Wait, config::WhatAmIMatcher, scouting::Hello};
+use zenoh::{config::WhatAmIMatcher, scouting::Hello, Wait};
 
 use crate::{
-    State, call_ext2::CallExt2, interruptible_channel::InterruptibleChannel,
-    signature_ext::SignatureExt,
+    call_ext2::CallExt2, interruptible_channel::InterruptibleChannel, signature_ext::SignatureExt,
+    State,
 };
 
 #[derive(Clone)]

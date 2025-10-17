@@ -13,12 +13,12 @@
 //
 use nu_engine::CallExt;
 use nu_protocol::{
-    PipelineData, ShellError, Signature,
     engine::{Call, Command, EngineState, Stack},
+    PipelineData, ShellError, Signature,
 };
 use zenoh::Wait;
 
-use crate::{State, call_ext2::CallExt2, signature_ext::SignatureExt};
+use crate::{call_ext2::CallExt2, signature_ext::SignatureExt, State};
 
 #[derive(Clone)]
 pub(crate) struct Delete {

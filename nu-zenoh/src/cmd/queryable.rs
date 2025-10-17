@@ -13,14 +13,14 @@
 //
 use nu_engine::{CallExt, ClosureEval};
 use nu_protocol::{
-    ListStream, PipelineData, ShellError, Signature, SyntaxShape, Type, Value,
     engine::{Call, Closure, Command, EngineState, Stack},
+    ListStream, PipelineData, ShellError, Signature, SyntaxShape, Type, Value,
 };
 use zenoh::Wait;
 
 use crate::{
-    State, call_ext2::CallExt2, conv, interruptible_channel::InterruptibleChannel,
-    signature_ext::SignatureExt,
+    call_ext2::CallExt2, conv, interruptible_channel::InterruptibleChannel,
+    signature_ext::SignatureExt, State,
 };
 
 #[derive(Clone)]

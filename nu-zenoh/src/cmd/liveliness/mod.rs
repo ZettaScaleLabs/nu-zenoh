@@ -13,7 +13,7 @@
 //
 use std::sync::{Arc, Mutex};
 
-use nu_protocol::{CustomValue, ShellError, Span, Value, record};
+use nu_protocol::{record, CustomValue, ShellError, Span, Value};
 use serde::Serialize;
 use zenoh::{key_expr::OwnedKeyExpr, liveliness::LivelinessToken};
 

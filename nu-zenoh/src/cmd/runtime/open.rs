@@ -15,15 +15,15 @@ use std::path::PathBuf;
 
 use nu_engine::CallExt;
 use nu_protocol::{
-    PipelineData, ShellError, Signature, SyntaxShape, Type, Value,
     engine::{Call, Command, EngineState, Stack},
+    PipelineData, ShellError, Signature, SyntaxShape, Type, Value,
 };
 use zenoh::{
-    Wait,
     internal::runtime::{RuntimeBuilder, ZRuntime},
+    Wait,
 };
 
-use crate::{State, conv, signature_ext::SignatureExt};
+use crate::{conv, signature_ext::SignatureExt, State};
 
 #[derive(Clone)]
 pub(crate) struct Open {

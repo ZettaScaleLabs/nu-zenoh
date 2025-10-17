@@ -18,13 +18,13 @@ use std::{
 
 use nu_engine::CallExt;
 use nu_protocol::{
-    PipelineData, ShellError, Signature, SyntaxShape, Type, Value,
     engine::{Call, Command, EngineState, Stack},
+    PipelineData, ShellError, Signature, SyntaxShape, Type, Value,
 };
-use zenoh::{Wait, key_expr::OwnedKeyExpr};
+use zenoh::{key_expr::OwnedKeyExpr, Wait};
 
 use crate::{
-    State, call_ext2::CallExt2, cmd::liveliness::LivelinessTokenValue, signature_ext::SignatureExt,
+    call_ext2::CallExt2, cmd::liveliness::LivelinessTokenValue, signature_ext::SignatureExt, State,
 };
 
 #[derive(Clone)]

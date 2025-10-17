@@ -13,14 +13,14 @@
 //
 use std::{
     env, process,
-    sync::{Arc, atomic::AtomicBool},
+    sync::{atomic::AtomicBool, Arc},
     time::Instant,
 };
 
 use clap::Parser;
 use nu_protocol::{
-    BannerKind, Config, PipelineData, Signals,
     engine::{EngineState, Stack},
+    BannerKind, Config, PipelineData, Signals,
 };
 
 mod args;
