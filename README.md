@@ -8,7 +8,7 @@
 to provide an interactive environment for debugging [Zenoh](https://zenoh.io/) systems. To get started:
 
 ```bash
-cargo install --git https://github.com/ZettaScaleLabs/nu-zenoh.git nuze
+cargo install --locked --git https://github.com/ZettaScaleLabs/nu-zenoh.git nuze
 nuze
 ```
 
