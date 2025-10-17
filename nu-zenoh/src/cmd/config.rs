@@ -55,7 +55,7 @@ impl Command for Config {
         let config = self
             .state
             .with_session(&call.session(engine_state, stack)?, |sess| {
-                sess.config().lock().to_string()
+                sess.config().to_string()
             })?;
 
         let nujson = nu_json::from_str::<nu_json::Value>(&config.trim()).map_err(|e| {
