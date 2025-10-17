@@ -12,11 +12,12 @@
 //   ZettaScale Zenoh Team, <zenoh@zettascale.tech>
 //
 use nu_protocol::{
+    IntoValue, PipelineData, ShellError, Signature, Type, Value,
     engine::{Call, Command, EngineState, Stack},
-    record, IntoValue, PipelineData, ShellError, Signature, Type, Value,
+    record,
 };
 
-use crate::{signature_ext::SignatureExt, State};
+use crate::{State, signature_ext::SignatureExt};
 
 #[derive(Clone)]
 pub(crate) struct List {

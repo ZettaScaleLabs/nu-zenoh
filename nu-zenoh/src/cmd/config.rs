@@ -58,7 +58,7 @@ impl Command for Config {
                 sess.config().to_string()
             })?;
 
-        let nujson = nu_json::from_str::<nu_json::Value>(&config.trim()).map_err(|e| {
+        let nujson = nu_json::from_str::<nu_json::Value>(config.trim()).map_err(|e| {
             nu_protocol::LabeledError::new("Config deserialization failed")
                 .with_label(format!("Config deserialization failed: {e}"), call.head)
         })?;

@@ -15,8 +15,8 @@ use std::str::FromStr;
 
 use nu_engine::CallExt;
 use nu_protocol::{
-    engine::{Call, Command, EngineState, Stack},
     PipelineData, ShellError, Signature, SyntaxShape, Value,
+    engine::{Call, Command, EngineState, Stack},
 };
 use zenoh::key_expr::KeyExpr;
 

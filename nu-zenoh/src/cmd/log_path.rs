@@ -14,14 +14,14 @@
 use std::{fs::File, path::PathBuf};
 
 use nu_protocol::{
-    engine::{Call, Command, EngineState, Stack},
     PipelineData, ShellError, Signature, Type, Value,
+    engine::{Call, Command, EngineState, Stack},
 };
 use tracing_subscriber::{
-    fmt::format::FmtSpan, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter,
+    EnvFilter, fmt::format::FmtSpan, layer::SubscriberExt, util::SubscriberInitExt,
 };
 
-use crate::{signature_ext::SignatureExt, State};
+use crate::{State, signature_ext::SignatureExt};
 
 #[derive(Clone)]
 pub(crate) struct LogPath {

@@ -15,12 +15,12 @@ use std::path::PathBuf;
 
 use nu_engine::CallExt;
 use nu_protocol::{
-    engine::{Call, Command, EngineState, Stack},
     LabeledError, PipelineData, ShellError, Signature, SyntaxShape, Type, Value,
+    engine::{Call, Command, EngineState, Stack},
 };
-use zenoh::{session, Wait};
+use zenoh::{Wait, session};
 
-use crate::{call_ext2::CallExt2, conv, signature_ext::SignatureExt, State};
+use crate::{State, call_ext2::CallExt2, conv, signature_ext::SignatureExt};
 
 #[derive(Clone)]
 pub(crate) struct Open {

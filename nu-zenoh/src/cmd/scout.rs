@@ -69,7 +69,8 @@ impl Command for Scout {
         let config = self
             .state
             .with_session(&call.session(engine_state, stack)?, |sess| {
-                zenoh::Config::from_json5(&sess.config().to_json()).expect("Failed to copy Config from generared JSON!")
+                zenoh::Config::from_json5(&sess.config().to_json())
+                    .expect("Failed to copy Config from generared JSON!")
             })?;
 
         let scout = zenoh::scout(WhatAmIMatcher::empty().client().peer().router(), config)

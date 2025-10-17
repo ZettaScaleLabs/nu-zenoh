@@ -13,12 +13,12 @@
 //
 use nu_engine::CallExt;
 use nu_protocol::{
-    engine::{Call, Command, EngineState, Stack},
     PipelineData, ShellError, Signature, SyntaxShape, Type, Value,
+    engine::{Call, Command, EngineState, Stack},
 };
 use zenoh::Wait;
 
-use crate::{cmd::liveliness::LivelinessTokenValue, signature_ext::SignatureExt, State};
+use crate::{State, cmd::liveliness::LivelinessTokenValue, signature_ext::SignatureExt};
 
 #[derive(Clone)]
 pub(crate) struct Undecl {

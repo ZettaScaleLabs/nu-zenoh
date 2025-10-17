@@ -15,8 +15,8 @@ use std::time::Duration;
 
 use nu_engine::CallExt;
 use nu_protocol::{
-    engine::{Call, EngineState, Stack},
     LabeledError, Value,
+    engine::{Call, EngineState, Stack},
 };
 use zenoh::{
     bytes::Encoding,
