@@ -11,7 +11,7 @@
 // Contributors:
 //   ZettaScale Zenoh Team, <zenoh@zettascale.tech>
 //
-use nu_protocol::{IntoValue, Record, ShellError, Span, Value, ast, engine::EngineState, record};
+use nu_protocol::{ast, engine::EngineState, record, IntoValue, Record, ShellError, Span, Value};
 use zenoh::{bytes::ZBytes, query::Query};
 
 /// Helper function to convert bytes to Nu value (string if valid UTF-8, otherwise bytes)

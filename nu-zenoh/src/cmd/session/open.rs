@@ -131,7 +131,7 @@ impl Command for Open {
                         .with_label(format!("Could not close Zenoh session: {e}"), call.head)
                     })?
                 }
-                let new_session = session::init(runtime).wait().map_err(|e| {
+                let new_session = session::init(runtime.into()).wait().map_err(|e| {
                     nu_protocol::LabeledError::new("Failed to open Zenoh session")
                         .with_label(format!("Could not establish Zenoh session: {e}"), call.head)
                 })?;

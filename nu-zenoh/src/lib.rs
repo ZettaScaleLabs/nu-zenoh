@@ -17,10 +17,10 @@ use std::{
 };
 
 use nu_protocol::{
-    LabeledError,
     engine::{EngineState, StateWorkingSet},
+    LabeledError,
 };
-use zenoh::{Session, Wait, internal::runtime::Runtime};
+use zenoh::{internal::runtime::Runtime, Session, Wait};
 
 mod call_ext2;
 mod cmd;
