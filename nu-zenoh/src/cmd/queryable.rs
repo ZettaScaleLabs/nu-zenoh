@@ -55,7 +55,7 @@ impl Command for Queryable {
     }
 
     fn description(&self) -> &str {
-        "Zenoh Queryable declaration"
+        "Zenoh Queryable"
     }
 
     fn run(

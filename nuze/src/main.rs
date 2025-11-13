@@ -30,7 +30,7 @@ fn main() {
     let args = args::Args::parse();
 
     let options = nu_zenoh::Config {
-        internal_options: args.internal_options,
+        experimental_options: args.experimental_options,
         no_default_session: args.no_default_session,
     };
 
