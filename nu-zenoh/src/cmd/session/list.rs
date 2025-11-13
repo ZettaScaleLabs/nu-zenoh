@@ -37,7 +37,7 @@ impl Command for List {
     fn signature(&self) -> Signature {
         Signature::build(self.name())
             .zenoh_category()
-            .input_output_type(Type::Nothing, Type::record())
+            .input_output_type(Type::Nothing, Type::table())
     }
 
     fn description(&self) -> &str {

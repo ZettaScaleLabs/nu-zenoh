@@ -11,6 +11,7 @@
 // Contributors:
 //   ZettaScale Zenoh Team, <zenoh@zettascale.tech>
 //
+use nu_engine::CallExt;
 use nu_protocol::{
     engine::{Call, Command, EngineState, Stack},
     IntoValue, PipelineData, ShellError, Signature, Type,
@@ -37,6 +38,7 @@ impl Command for Zid {
     fn signature(&self) -> nu_protocol::Signature {
         Signature::build(self.name())
             .session()
+            .switch("short", "Shortens the ZID to a prefix", None)
             .zenoh_category()
             .input_output_type(Type::Nothing, Type::String)
     }
@@ -52,10 +54,20 @@ impl Command for Zid {
         call: &Call<'_>,
         _input: PipelineData,
     ) -> Result<PipelineData, ShellError> {
+        pub fn short(mut zid: String) -> String {
+            const MAX_ZID_LEN: usize = 8;
+            zid.truncate(MAX_ZID_LEN);
+            zid
+        }
+
+        let is_short = call.has_flag(engine_state, stack, "short")?;
+
         let data = self
             .state
             .with_session(&call.session(engine_state, stack)?, |sess| {
-                PipelineData::Value(sess.zid().to_string().into_value(call.head), None)
+                let zid = sess.zid().to_string();
+                let value = if is_short { short(zid) } else { zid };
+                PipelineData::Value(value.into_value(call.head), None)
             })?;
 
         Ok(data)
