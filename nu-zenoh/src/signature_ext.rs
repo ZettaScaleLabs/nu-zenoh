@@ -14,6 +14,8 @@
 use nu_protocol::{Category, Signature, SyntaxShape};
 
 pub(crate) trait SignatureExt: Sized {
+    fn config(self) -> Self;
+
     fn session(self) -> Self;
 
     fn zenoh_category(self) -> Self;
@@ -32,6 +34,15 @@ pub(crate) trait SignatureExt: Sized {
 }
 
 impl SignatureExt for Signature {
+    fn config(self) -> Self {
+        const ZENOH_VERSION: &str = "1.6.2";
+        self.optional(
+            "config",
+            SyntaxShape::Record(vec![]),
+            format!("Zenoh configuration object; see https://raw.githubusercontent.com/eclipse-zenoh/zenoh/refs/tags/{ZENOH_VERSION}/DEFAULT_CONFIG.json5"),
+        )
+    }
+
     fn session(self) -> Self {
         self.named(
             "session",

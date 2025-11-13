@@ -14,26 +14,27 @@
 
 use std::time::Instant;
 
+use nu_engine::CallExt;
 use nu_protocol::{
     engine::{Call, Command, EngineState, Stack},
     record, IntoValue, ListStream, PipelineData, ShellError, Signature, Span, SyntaxShape, Type,
     Value,
 };
-use zenoh::{config::WhatAmIMatcher, scouting::Hello, Wait};
+use zenoh::{config::WhatAmIMatcher, scouting::Hello, Config, Wait};
 
 use crate::{
-    call_ext2::CallExt2, interruptible_channel::InterruptibleChannel, signature_ext::SignatureExt,
-    State,
+    call_ext2::CallExt2, conv, interruptible_channel::InterruptibleChannel,
+    signature_ext::SignatureExt, State,
 };
 
 #[derive(Clone)]
 pub(crate) struct Scout {
-    state: State,
+    _state: State,
 }
 
 impl Scout {
     pub(crate) fn new(state: State) -> Self {
-        Self { state }
+        Self { _state: state }
     }
 }
 
@@ -43,10 +44,11 @@ impl Command for Scout {
     }
 
     fn signature(&self) -> Signature {
+        // FIXME: add a config option?
         Signature::build(self.name())
-            .session()
             .named("timeout", SyntaxShape::Duration, "Scouting timeout", None)
             .zenoh_category()
+            .config()
             .input_output_type(Type::Nothing, Type::record())
     }
 
@@ -66,12 +68,27 @@ impl Command for Scout {
         const SCOUT_CHANNEL_SIZE: usize = 256;
         let (tx, rx) = flume::bounded(SCOUT_CHANNEL_SIZE);
 
-        let config = self
-            .state
-            .with_session(&call.session(engine_state, stack)?, |sess| {
-                zenoh::Config::from_json5(&sess.config().to_json())
-                    .expect("Failed to copy Config from generared JSON!")
-            })?;
+        let config_record = call.opt::<Value>(engine_state, stack, 0)?;
+
+        let config = match config_record {
+            Some(val @ Value::Record { .. }) => {
+                let json_value = conv::value_to_json_value(engine_state, &val, call.head, false)?;
+                zenoh::Config::from_json5(&json_value.to_string()).map_err(|e| {
+                    nu_protocol::LabeledError::new("Failed to parse config record")
+                        .with_label(format!("Could not parse config record: {e}"), call.head)
+                })?
+            }
+            Some(_) => {
+                return Err(ShellError::GenericError {
+                    error: "Invalid config type".to_string(),
+                    msg: "Config must be a record".to_string(),
+                    span: Some(call.head),
+                    help: Some("Provide a record with Zenoh configuration options".to_string()),
+                    inner: vec![],
+                });
+            }
+            None => Config::default(),
+        };
 
         let scout = zenoh::scout(WhatAmIMatcher::empty().client().peer().router(), config)
             .callback(move |scout| {
