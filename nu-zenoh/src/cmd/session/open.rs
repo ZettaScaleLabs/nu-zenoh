@@ -42,18 +42,14 @@ impl Command for Open {
         let sig = Signature::build(self.name())
             .session()
             .zenoh_category()
-            .input_output_type(Type::Nothing, Type::Nothing)
+            .config()
             .named(
                 "config-file",
                 SyntaxShape::Filepath,
                 "Path to a Zenoh configuration file",
                 None,
             )
-            .optional(
-                "config",
-                SyntaxShape::Record(vec![]),
-                "Zenoh configuration object (see https://github.com/eclipse-zenoh/zenoh/blob/main/DEFAULT_CONFIG.json5)",
-            );
+            .input_output_type(Type::Nothing, Type::Nothing);
 
         if self.state.options.internal_options {
             sig.named("runtime", SyntaxShape::String, "Runtime name", None)
