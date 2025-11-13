@@ -11,6 +11,7 @@ license.workspace = true
 name = "nu-zenoh"
 repository.workspace = true
 version.workspace = true
+description = "Nu-Zenoh integration"
 
 [dependencies]
 flume = { workspace = true }

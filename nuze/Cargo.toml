@@ -6,6 +6,7 @@ license.workspace = true
 name = "nuze"
 repository.workspace = true
 version.workspace = true
+description = "A Nu shell for Zenoh: debug systems, write (end-to-end) tests and build powerful CLI tools"
 
 [dependencies]
 clap = { workspace = true, features = ["derive"] }
