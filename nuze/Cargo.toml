@@ -1,13 +1,13 @@
 [package]
 authors.workspace = true
+description = "A Nu shell for Zenoh: debug systems, write (end-to-end) tests and build powerful CLI tools"
 edition.workspace = true
 homepage.workspace = true
 license.workspace = true
 name = "nuze"
+readme = "../README.md"
 repository.workspace = true
 version.workspace = true
-description = "A Nu shell for Zenoh: debug systems, write (end-to-end) tests and build powerful CLI tools"
-readme = "../README.md"
 
 [dependencies]
 clap = { workspace = true, features = ["derive"] }
