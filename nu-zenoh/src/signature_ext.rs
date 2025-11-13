@@ -31,6 +31,18 @@ pub(crate) trait SignatureExt: Sized {
     fn complete(self) -> Self;
 
     fn keyexpr(self) -> Self;
+
+    fn congestion_control(self) -> Self;
+
+    fn express(self) -> Self;
+
+    fn priority(self) -> Self;
+
+    fn reliable(self) -> Self;
+
+    fn target(self) -> Self;
+
+    fn consolidation(self) -> Self;
 }
 
 impl SignatureExt for Signature {
@@ -75,27 +87,44 @@ impl SignatureExt for Signature {
         )
     }
 
+    fn congestion_control(self) -> Self {
+        self.named(
+            "congestion-control",
+            SyntaxShape::Int,
+            "Congestion control (0 for DROP, 1 for BLOCK)",
+            None,
+        )
+    }
+
+    fn reliable(self) -> Self {
+        self.named(
+            "reliable",
+            SyntaxShape::Boolean,
+            "Sets reliable transmission",
+            None,
+        )
+    }
+
+    fn express(self) -> Self {
+        self.named(
+            "express",
+            SyntaxShape::Boolean,
+            "Sets express transmission",
+            None,
+        )
+    }
+
+    fn priority(self) -> Self {
+        self.named("priority", SyntaxShape::String, "Priority (0-7)", None)
+    }
+
     fn publication(self) -> Self {
         self.keyexpr()
-            .named("priority", SyntaxShape::String, "Priority (0-7)", None)
-            .named(
-                "congestion-control",
-                SyntaxShape::Int,
-                "Congestion control (0 for DROP, 1 for BLOCK)",
-                None,
-            )
-            .named(
-                "reliable",
-                SyntaxShape::Boolean,
-                "Sets reliable transmission",
-                None,
-            )
-            .named(
-                "express",
-                SyntaxShape::Boolean,
-                "Sets express transmission",
-                None,
-            )
+            .allowed_destination()
+            .congestion_control()
+            .reliable()
+            .express()
+            .priority()
             .named("attachment", SyntaxShape::String, "Attachment data", None)
             .named(
                 "timestamp",
@@ -103,7 +132,6 @@ impl SignatureExt for Signature {
                 "Custom timestamp (expects the '<ZID>/<RFC3339>' format)",
                 None,
             )
-            .allowed_destination()
     }
 
     fn encoding(self) -> Self {
@@ -126,5 +154,23 @@ impl SignatureExt for Signature {
 
     fn keyexpr(self) -> Self {
         self.required("keyexpr", SyntaxShape::String, "Key expression")
+    }
+
+    fn target(self) -> Self {
+        self.named(
+            "target",
+            SyntaxShape::String,
+            "Query target (either 'all', 'all-complete' or 'best-matching')",
+            None,
+        )
+    }
+
+    fn consolidation(self) -> Self {
+        self.named(
+            "consolidation",
+            SyntaxShape::String,
+            "Consolidation mode (either 'auto', 'latest', 'monotonic' or 'none')",
+            None,
+        )
     }
 }

@@ -51,7 +51,7 @@ impl Command for Open {
             )
             .input_output_type(Type::Nothing, Type::Nothing);
 
-        if self.state.options.internal_options {
+        if self.state.options.experimental_options {
             sig.named("runtime", SyntaxShape::String, "Runtime name", None)
         } else {
             sig

@@ -45,10 +45,10 @@ pub(crate) struct Args {
     )]
     pub execute: Option<String>,
     #[arg(
-        long = "internal-options",
-        help = "Enable internal Zenoh options and commands"
+        long = "experimental-options",
+        help = "Enable experimental commands and command options"
     )]
-    pub internal_options: bool,
+    pub experimental_options: bool,
     #[arg(long = "no-default-session", help = "Don't open a 'default' session")]
     pub no_default_session: bool,
 }

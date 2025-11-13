@@ -30,7 +30,7 @@ mod signature_ext;
 
 #[derive(Debug, Clone)]
 pub struct Config {
-    pub internal_options: bool,
+    pub experimental_options: bool,
     pub no_default_session: bool,
 }
 
@@ -46,10 +46,18 @@ pub fn add_zenoh_context(mut engine_state: EngineState, options: Config) -> Engi
 
         let state = State::new(options.clone());
 
-        if options.internal_options {
+        if options.experimental_options {
             working_set.add_decl(Box::new(cmd::runtime::list::List::new(state.clone())));
             working_set.add_decl(Box::new(cmd::runtime::open::Open::new(state.clone())));
             working_set.add_decl(Box::new(cmd::runtime::close::Close::new(state.clone())));
+
+            working_set.add_decl(Box::new(cmd::pub_::Pub::new(state.clone())));
+            working_set.add_decl(Box::new(cmd::querier::Querier::new(state.clone())));
+
+            working_set.add_decl(Box::new(cmd::liveliness::decl::Decl::new(state.clone())));
+            working_set.add_decl(Box::new(cmd::liveliness::undecl::Undecl::new(
+                state.clone(),
+            )));
         }
 
         working_set.add_decl(Box::new(cmd::put::Put::new(state.clone())));
@@ -58,12 +66,7 @@ pub fn add_zenoh_context(mut engine_state: EngineState, options: Config) -> Engi
         working_set.add_decl(Box::new(cmd::sub::Sub::new(state.clone())));
         working_set.add_decl(Box::new(cmd::zid::Zid::new(state.clone())));
 
-        working_set.add_decl(Box::new(cmd::liveliness::decl::Decl::new(state.clone())));
-        working_set.add_decl(Box::new(cmd::liveliness::undecl::Undecl::new(
-            state.clone(),
-        )));
         working_set.add_decl(Box::new(cmd::liveliness::get::Get::new(state.clone())));
-
         working_set.add_decl(Box::new(cmd::session::list::List::new(state.clone())));
         working_set.add_decl(Box::new(cmd::session::open::Open::new(state.clone())));
         working_set.add_decl(Box::new(cmd::session::close::Close::new(state.clone())));

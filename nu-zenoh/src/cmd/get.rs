@@ -42,18 +42,8 @@ impl engine::Command for Get {
             .zenoh_category()
             .input_output_type(Type::Nothing, Type::list(Type::record()))
             .required("keyexpr", SyntaxShape::String, "Key expression")
-            .named(
-                "target",
-                SyntaxShape::String,
-                "Query target (either 'all', 'all-complete' or 'best-matching')",
-                None,
-            )
-            .named(
-                "consolidation",
-                SyntaxShape::String,
-                "Consolidation mode (either 'auto', 'latest', 'monotonic' or 'none')",
-                None,
-            )
+            .target()
+            .consolidation()
             .named("timeout", SyntaxShape::Duration, "Query timeout", None)
             .named("payload", SyntaxShape::String, "Query payload", None)
             .named("encoding", SyntaxShape::String, "Query encoding", None)
