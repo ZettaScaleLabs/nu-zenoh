@@ -17,9 +17,10 @@ use nu_protocol::{record, CustomValue, ShellError, Span, Value};
 use serde::Serialize;
 use zenoh::{key_expr::OwnedKeyExpr, liveliness::LivelinessToken};
 
-pub(crate) mod decl;
+pub(crate) mod declare_token;
 pub(crate) mod get;
-pub(crate) mod undecl;
+pub(crate) mod sub;
+pub(crate) mod undeclare_token;
 
 #[derive(Debug, Clone)]
 struct LivelinessTokenValue {

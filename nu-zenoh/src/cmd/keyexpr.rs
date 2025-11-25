@@ -39,7 +39,7 @@ impl Command for Includes {
     }
 
     fn description(&self) -> &str {
-        "Returns true if the lhs keyexpr includes the rhs keyexpr"
+        "Check if the LHS keyexpr includes the RHS keyexpr"
     }
 
     fn run(
@@ -86,7 +86,7 @@ impl Command for Intersects {
     }
 
     fn description(&self) -> &str {
-        "Returns true if the lhs and ths keyexprs intersect"
+        "Check if the LHS and RHS keyexprs intersect"
     }
 
     fn run(

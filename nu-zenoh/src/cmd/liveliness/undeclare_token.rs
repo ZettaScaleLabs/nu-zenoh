@@ -21,19 +21,19 @@ use zenoh::Wait;
 use crate::{cmd::liveliness::LivelinessTokenValue, signature_ext::SignatureExt, State};
 
 #[derive(Clone)]
-pub(crate) struct Undecl {
+pub(crate) struct UndeclareToken {
     _state: State,
 }
 
-impl Undecl {
+impl UndeclareToken {
     pub(crate) fn new(state: State) -> Self {
         Self { _state: state }
     }
 }
 
-impl Command for Undecl {
+impl Command for UndeclareToken {
     fn name(&self) -> &str {
-        "zenoh liveliness undecl"
+        "zenoh liveliness undeclare-token"
     }
 
     fn signature(&self) -> nu_protocol::Signature {
@@ -46,7 +46,7 @@ impl Command for Undecl {
     }
 
     fn description(&self) -> &str {
-        "Zenoh liveliness token undeclaration"
+        "Undeclare a liveliness token"
     }
 
     fn run(

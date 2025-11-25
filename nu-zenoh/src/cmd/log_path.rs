@@ -67,13 +67,12 @@ impl Command for LogPath {
 
     fn signature(&self) -> Signature {
         Signature::build(self.name())
-            .session()
             .zenoh_category()
             .input_output_type(Type::Nothing, Type::String)
     }
 
     fn description(&self) -> &str {
-        "Get the log file path for the specified session"
+        "Global log path"
     }
 
     fn run(

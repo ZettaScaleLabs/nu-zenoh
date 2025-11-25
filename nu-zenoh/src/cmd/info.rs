@@ -43,7 +43,7 @@ impl Command for Info {
     }
 
     fn description(&self) -> &str {
-        "Session information"
+        "Session info"
     }
 
     fn run(

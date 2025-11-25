@@ -42,7 +42,7 @@ impl Command for Config {
     }
 
     fn description(&self) -> &str {
-        "Zenoh Configuration"
+        "Session config"
     }
 
     fn run(

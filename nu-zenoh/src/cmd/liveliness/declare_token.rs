@@ -28,19 +28,19 @@ use crate::{
 };
 
 #[derive(Clone)]
-pub(crate) struct Decl {
+pub(crate) struct DeclareToken {
     state: State,
 }
 
-impl Decl {
+impl DeclareToken {
     pub(crate) fn new(state: State) -> Self {
         Self { state }
     }
 }
 
-impl Command for Decl {
+impl Command for DeclareToken {
     fn name(&self) -> &str {
-        "zenoh liveliness decl"
+        "zenoh liveliness declare-token"
     }
 
     fn signature(&self) -> nu_protocol::Signature {
@@ -53,7 +53,7 @@ impl Command for Decl {
     }
 
     fn description(&self) -> &str {
-        "Zenoh liveliness token declaration"
+        "Declare a liveliness token"
     }
 
     fn run(

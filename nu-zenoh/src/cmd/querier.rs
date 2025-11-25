@@ -52,7 +52,7 @@ impl Command for Querier {
     }
 
     fn description(&self) -> &str {
-        "Zenoh Querier"
+        "Declare a querier"
     }
 
     fn run(

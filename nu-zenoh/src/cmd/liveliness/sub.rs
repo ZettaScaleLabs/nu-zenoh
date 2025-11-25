@@ -11,6 +11,7 @@
 // Contributors:
 //   ZettaScale Zenoh Team, <zenoh@zettascale.tech>
 //
+
 use nu_engine::CallExt;
 use nu_protocol::{
     engine::{Call, Command, EngineState, Stack},
@@ -36,7 +37,7 @@ impl Sub {
 
 impl Command for Sub {
     fn name(&self) -> &str {
-        "zenoh sub"
+        "zenoh liveliness sub"
     }
 
     fn signature(&self) -> nu_protocol::Signature {
@@ -45,11 +46,12 @@ impl Command for Sub {
             .zenoh_category()
             .input_output_type(Type::Nothing, Type::list(Type::record()))
             .required("keyexpr", SyntaxShape::String, "key-expression")
+            .switch("history", "GET liveliness history", None)
             .allowed_origin()
     }
 
     fn description(&self) -> &str {
-        "Declare a subscriber"
+        "Declare a liveliness subscriber"
     }
 
     fn run(
@@ -65,22 +67,29 @@ impl Command for Sub {
         let span = call.head;
 
         let keyexpr = call.req::<String>(engine_state, stack, 0)?;
+        let history = call.has_flag(engine_state, stack, "history")?;
+
+        assert!(!history);
 
         let sub = self
             .state
             .with_session(&call.session(engine_state, stack)?, move |sess| {
-                let mut sub = sess.declare_subscriber(keyexpr).callback(move |sample| {
-                    let _ = tx.send(sample);
-                });
+                let sub = sess
+                    .liveliness()
+                    .declare_subscriber(keyexpr)
+                    .history(history)
+                    .callback(move |sample| {
+                        let _ = tx.send(sample);
+                    });
 
-                if let Some(origin) = call.allowed_origin(engine_state, stack)? {
-                    sub = sub.allowed_origin(origin);
-                }
                 sub.wait()
             })?
             .map_err(|e| {
-                nu_protocol::LabeledError::new("Subscriber declaration failed")
-                    .with_label(format!("Zenoh subscriber failed: {e}"), call.head)
+                nu_protocol::LabeledError::new("Liveliness subscriber declaration failed")
+                    .with_label(
+                        format!("Zenoh liveliness subscriber failed: {e}"),
+                        call.head,
+                    )
             })?;
 
         let iter = InterruptibleChannel::with_data(rx, engine_state.signals().clone(), sub)
