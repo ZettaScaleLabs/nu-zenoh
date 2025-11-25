@@ -45,10 +45,15 @@ pub(crate) struct Args {
     )]
     pub execute: Option<String>,
     #[arg(
+        short = 'X',
         long = "experimental-options",
         help = "Enable experimental commands and command options"
     )]
     pub experimental_options: bool,
-    #[arg(long = "no-default-session", help = "Don't open a 'default' session")]
+    #[arg(
+        short = '0',
+        long = "no-default-session",
+        help = "Don't open a 'default' session"
+    )]
     pub no_default_session: bool,
 }
