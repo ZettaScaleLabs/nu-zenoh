@@ -41,7 +41,7 @@ impl Command for List {
     }
 
     fn description(&self) -> &str {
-        "List opened sessions"
+        "List sessions"
     }
 
     fn run(

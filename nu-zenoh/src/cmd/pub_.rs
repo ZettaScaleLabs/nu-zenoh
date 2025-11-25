@@ -51,7 +51,7 @@ impl Command for Pub {
     }
 
     fn description(&self) -> &str {
-        "Zenoh Publisher"
+        "Declare a publisher"
     }
 
     fn run(

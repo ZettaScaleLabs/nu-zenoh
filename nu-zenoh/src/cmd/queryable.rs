@@ -55,7 +55,7 @@ impl Command for Queryable {
     }
 
     fn description(&self) -> &str {
-        "Zenoh Queryable"
+        "Declare a queryable"
     }
 
     fn run(

@@ -64,7 +64,7 @@ impl Command for Open {
     }
 
     fn description(&self) -> &str {
-        "Create a runtime"
+        "Open or re-open a runtime"
     }
 
     fn run(

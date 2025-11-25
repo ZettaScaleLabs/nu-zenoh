@@ -38,7 +38,7 @@ impl Command for Zid {
     fn signature(&self) -> nu_protocol::Signature {
         Signature::build(self.name())
             .session()
-            .switch("short", "Shortens the ZID to a prefix", None)
+            .switch("short", "Shorten the ZID to a prefix", None)
             .zenoh_category()
             .input_output_type(Type::Nothing, Type::String)
     }

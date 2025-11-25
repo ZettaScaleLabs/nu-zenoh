@@ -41,7 +41,7 @@ impl Command for List {
     }
 
     fn description(&self) -> &str {
-        "List opened runtimes"
+        "List runtimes"
     }
 
     fn run(

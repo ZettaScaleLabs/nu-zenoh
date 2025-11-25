@@ -59,7 +59,7 @@ impl Command for Open {
     }
 
     fn description(&self) -> &str {
-        "(re)Open a session"
+        "Open or re-open a session"
     }
 
     fn run(
