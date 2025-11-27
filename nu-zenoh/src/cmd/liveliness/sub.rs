@@ -69,8 +69,6 @@ impl Command for Sub {
         let keyexpr = call.req::<String>(engine_state, stack, 0)?;
         let history = call.has_flag(engine_state, stack, "history")?;
 
-        assert!(!history);
-
         let sub = self
             .state
             .with_session(&call.session(engine_state, stack)?, move |sess| {
