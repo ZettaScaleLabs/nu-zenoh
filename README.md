@@ -1,40 +1,53 @@
-# `nu-zenoh`
+<div align="center">
+    <h1>Nuze</h1>
+    <p><strong>A Nu shell for Zenoh: debug systems, write (end-to-end) tests and build powerful CLI tools</strong></p>
+    <sub>Built by the <a href="https://zenoh.io">Zenoh</a> team at <a href="https://www.zettascale.tech">ZettaScale</a></sub>
+</div>
 
-## `nuze`: Zenoh Nu Shell
+## Demo
 
 [![asciicast](https://asciinema.org/a/Uy6yvpT86vWzYW5DmWBfLcc8V.svg)](https://asciinema.org/a/Uy6yvpT86vWzYW5DmWBfLcc8V)
 
-`nuze` is an experimental Zenoh shell built with [Nushell](https://www.nushell.sh/)
-to provide an interactive environment for debugging [Zenoh](https://zenoh.io/) systems. To get started:
+## Usage
+
+Nuze is available on crates.io:
 
 ```bash
-cargo install --locked --git https://github.com/ZettaScaleLabs/nu-zenoh.git nuze
-nuze
+cargo install nuze
 ```
 
-A REPL instance supports multiple Zenoh sessions each identified by a name (string).
+A REPL instance supports multiple Zenoh sessions each identified with a name (a Nu string).
 On startup, a session named `default` is created. All commands use this session unless
-the argument `-s, --session` is supplied:
+the argument `--session (-s)` is supplied:
 
 ```console
-> zenoh session list
+$ nuze
+41aa8953> zenoh session list
 ╭───┬─────────┬──────────────────────────────────╮
 │ # │  name   │               zid                │
 ├───┼─────────┼──────────────────────────────────┤
 │ 0 │ default │ 41aa8953ad1abda60a9149e25c54067d │
 ╰───┴─────────┴──────────────────────────────────╯
-> zenoh zid
-41aa8953ad1abda60a9149e25c54067d
+41aa8953> zenoh zid -s default --short
+41aa8953
+```
+
+If you would like to start Nuze without the `default` session, use the `--no-default-session (-0)` argument.
+
+The Nuze CLI can be consulted with:
+
+```console
+$ nuze --help
 ```
 
 To get the list of available commands:
 
 ```console
-> help zenoh
+41aa8953> help zenoh
 ```
 
 To get help on a specific command:
 
 ```console
-> help zenoh liveliness decl
+41aa8953> help zenoh liveliness declare-token
 ```
