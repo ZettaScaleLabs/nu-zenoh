@@ -49,7 +49,7 @@ impl Command for Scout {
             .named("timeout", SyntaxShape::Duration, "Scouting timeout", None)
             .zenoh_category()
             .config()
-            .input_output_type(Type::Nothing, Type::record())
+            .input_output_type(Type::Nothing, Type::list(Type::record()))
     }
 
     fn description(&self) -> &str {
