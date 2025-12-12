@@ -54,15 +54,18 @@ pub(crate) fn sample_to_record_value(
             .unwrap_or_default(),
         "payload" => bytes_to_value(sample.payload(), span),
         "timestamp" => sample.timestamp().map(|t| t.to_string_rfc3339_lossy().into_value(span)).unwrap_or_default(),
-        "source_info" =>
-            record!(
-                "source_id" => sample.source_info().source_id().map(|id| record!(
-                    "zid" => id.zid().to_string().into_value(span),
-                    "eid" => id.eid().into_value(span),
-                ).into_value(span)).unwrap_or_default(),
-                "source_sn" => sample.source_info().source_sn().map(|id| id.into_value(span)).unwrap_or_default(),
-            ).into_value(span),
-        "encoding" => sample.encoding().to_string().into_value(span),
+        "source_info" => sample
+            .source_info()
+            .map(|info| {
+                record!(
+                    "source_id" => record!(
+                        "zid" => info.source_id().zid().to_string().into_value(span),
+                        "eid" => info.source_id().eid().into_value(span),
+                    ).into_value(span),
+                    "source_sn" => info.source_sn().into_value(span)
+                ).into_value(span)
+            })
+            .unwrap_or_default(),
     ).into_value(span)
 }
 

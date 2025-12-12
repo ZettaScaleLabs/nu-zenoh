@@ -75,6 +75,13 @@ impl Command for Info {
                         .map(|zid| zid.to_string().into_value(span))
                         .collect::<Vec<_>>()
                         .into_value(span),
+                    "locators" => info
+                        .locators()
+                        .wait()
+                        .into_iter()
+                        .map(|locator| locator.to_string().into_value(span))
+                        .collect::<Vec<_>>()
+                        .into_value(span),
                 ),
                 span,
             ),
