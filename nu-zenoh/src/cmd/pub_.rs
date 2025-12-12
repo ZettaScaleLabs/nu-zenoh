@@ -14,7 +14,7 @@
 use nu_engine::CallExt;
 use nu_protocol::{
     engine::{Call, Command, EngineState, Stack},
-    PipelineData, ShellError, Signature, Type,
+    record, IntoValue, PipelineData, ShellError, Signature, Type,
 };
 use zenoh::Wait;
 
@@ -104,5 +104,76 @@ impl Command for Pub {
         }
 
         Ok(nu_protocol::PipelineData::empty())
+    }
+}
+
+#[derive(Clone)]
+pub(crate) struct MatchingStatus {
+    state: State,
+}
+
+impl MatchingStatus {
+    pub(crate) fn new(state: State) -> Self {
+        Self { state }
+    }
+}
+
+impl Command for MatchingStatus {
+    fn name(&self) -> &str {
+        "zenoh pub matching-status"
+    }
+
+    fn signature(&self) -> Signature {
+        Signature::build(self.name())
+            .session()
+            .zenoh_category()
+            .keyexpr()
+            .allowed_destination()
+            .input_output_type(Type::Nothing, Type::record())
+    }
+
+    fn description(&self) -> &str {
+        "Returns `true` if there are matching subscribers"
+    }
+
+    fn run(
+        &self,
+        engine_state: &EngineState,
+        stack: &mut Stack,
+        call: &Call,
+        _input: PipelineData,
+    ) -> Result<PipelineData, ShellError> {
+        let key = call.req::<String>(engine_state, stack, 0)?;
+
+        let pub_ = self
+            .state
+            .with_session(&call.session(engine_state, stack)?, |sess| {
+                let mut pub_ = sess.declare_publisher(key);
+
+                if let Some(destination) = call.allowed_destination(engine_state, stack)? {
+                    pub_ = pub_.allowed_destination(destination);
+                }
+
+                pub_.wait()
+            })?
+            .map_err(|e| {
+                nu_protocol::LabeledError::new("Failed to declare publisher")
+                    .with_label(format!("Failed to declare publisher: {e}"), call.head)
+            })?;
+
+        let status = pub_.matching_status().wait().map_err(|e| {
+            nu_protocol::LabeledError::new("Failed to get publisher matching status").with_label(
+                format!("Failed to get publisher matching status: {e}"),
+                call.head,
+            )
+        })?;
+
+        Ok(nu_protocol::PipelineData::Value(
+            record!(
+                "matching" => status.matching().into_value(call.head),
+            )
+            .into_value(call.head),
+            None,
+        ))
     }
 }

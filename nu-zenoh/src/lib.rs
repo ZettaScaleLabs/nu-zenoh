@@ -61,6 +61,9 @@ pub fn add_zenoh_context(mut engine_state: EngineState, options: Config) -> Engi
                 cmd::liveliness::undeclare_token::UndeclareToken::new(state.clone()),
             ));
             working_set.add_decl(Box::new(cmd::liveliness::sub::Sub::new(state.clone())));
+
+            working_set.add_decl(Box::new(cmd::pub_::MatchingStatus::new(state.clone())));
+            working_set.add_decl(Box::new(cmd::querier::MatchingStatus::new(state.clone())));
         }
 
         working_set.add_decl(Box::new(cmd::put::Put::new(state.clone())));
