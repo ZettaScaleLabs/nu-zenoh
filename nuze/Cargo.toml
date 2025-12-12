@@ -18,4 +18,5 @@ nu-cmd-lang = { workspace = true }
 nu-command = { workspace = true }
 nu-explore = { workspace = true }
 nu-protocol = { workspace = true }
+nu-std = { workspace = true }
 nu-zenoh = { workspace = true }

@@ -2931,6 +2931,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "nu-std"
+version = "0.106.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee3c6bdcfa0b62ba708479cd8711348687553624592c56ecc20ef485cc2cfccd"
+dependencies = [
+ "log",
+ "miette",
+ "nu-engine",
+ "nu-parser",
+ "nu-protocol",
+]
+
+[[package]]
 name = "nu-system"
 version = "0.106.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3140,6 +3153,7 @@ dependencies = [
  "nu-command",
  "nu-explore",
  "nu-protocol",
+ "nu-std",
  "nu-zenoh",
 ]
 

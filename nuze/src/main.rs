@@ -59,7 +59,7 @@ fn main() {
             &mut stack,
             PipelineData::Empty,
         ) {
-            eprintln!("Error evaluating script '{}': {err}", script.display());
+            eprintln!("failed to evaluate script '{}': {err}", script.display());
             process::exit(1);
         } else {
             return;
@@ -91,7 +91,7 @@ fn main() {
 
     if let Err(err) = nu_cli::evaluate_repl(&mut engine_state, stack, None, None, entire_start_time)
     {
-        eprintln!("Error starting REPL: {err}");
+        eprintln!("failed to start the REPL: {err}");
         process::exit(1);
     }
 }
@@ -119,10 +119,14 @@ fn nu_context(options: nu_zenoh::Config) -> (EngineState, Stack) {
             working_set.render()
         };
 
-        engine_state
-            .merge_delta(delta)
-            .expect("failed to merge nu-highlight and print");
+        if let Err(err) = engine_state.merge_delta(delta) {
+            eprintln!("failed to load print and nu-hightlight: {err}");
+        }
     };
+
+    if let Err(err) = nu_std::load_standard_library(&mut engine_state) {
+        eprintln!("failed to load the standard library: {err}");
+    }
 
     nu_cli::gather_parent_env_vars(
         &mut engine_state,
