@@ -66,6 +66,7 @@ pub(crate) fn sample_to_record_value(
                 ).into_value(span)
             })
             .unwrap_or_default(),
+        "encoding" => sample.encoding().to_string().into_value(span),
     ).into_value(span)
 }
 
