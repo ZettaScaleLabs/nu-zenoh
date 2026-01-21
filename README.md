@@ -13,7 +13,7 @@
 Nuze is available on crates.io:
 
 ```bash
-cargo install nuze
+cargo install nuze --locked
 ```
 
 A REPL instance supports multiple Zenoh sessions each identified with a name (a Nu string).
@@ -37,7 +37,7 @@ If you would like to start Nuze without the `default` session, use the `--no-def
 The Nuze CLI can be consulted with:
 
 ```console
-$ nuze --help
+nuze --help
 ```
 
 To get the list of available commands:
