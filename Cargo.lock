@@ -3020,6 +3020,8 @@ dependencies = [
  "tempfile",
  "tracing-subscriber",
  "zenoh",
+ "zenoh-codec",
+ "zenoh-protocol",
 ]
 
 [[package]]

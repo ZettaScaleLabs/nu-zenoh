@@ -12,6 +12,7 @@
 //   ZettaScale Zenoh Team, <zenoh@zettascale.tech>
 //
 pub(crate) mod config;
+pub(crate) mod decode;
 pub(crate) mod delete;
 pub(crate) mod get;
 pub(crate) mod info;

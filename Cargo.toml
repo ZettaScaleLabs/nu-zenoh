@@ -35,3 +35,5 @@ zenoh = { version = "1.7.1", features = [
   "stats",
   "unstable",
 ] }
+zenoh-codec = "1.7.1"
+zenoh-protocol = "1.7.1"
