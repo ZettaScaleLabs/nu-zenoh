@@ -16,12 +16,15 @@ env:
 
 jobs:
   check:
-    name: Lints on ${{ matrix.os }}
+    name: Lints on ${{ join(matrix.os, ', ') }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os:
+          - [ubuntu-runner-set]
+          - [self-hosted, macos-latest]
+          - [self-hosted, windows-latest]
 
     steps:
       - name: Clone this repository
