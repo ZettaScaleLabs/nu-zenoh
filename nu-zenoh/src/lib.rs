@@ -17,10 +17,10 @@ use std::{
 };
 
 use nu_protocol::{
-    engine::{EngineState, StateWorkingSet},
     LabeledError,
+    engine::{EngineState, StateWorkingSet},
 };
-use zenoh::{internal::runtime::Runtime, Session, Wait};
+use zenoh::{Session, Wait, internal::runtime::Runtime};
 
 mod call_ext2;
 mod cmd;
@@ -44,6 +44,10 @@ pub const ZENOH_CONTEXT_EXTRAS: &[u8] = include_bytes!("nu/extras.nu");
 pub fn add_zenoh_context(mut engine_state: EngineState, options: Config) -> EngineState {
     let delta = {
         let mut working_set = StateWorkingSet::new(&engine_state);
+
+        // NOTE: this command needs to be created before `State` in order to capture all logs of the
+        // default session.
+        working_set.add_decl(Box::new(cmd::log_path::LogPath::new()));
 
         let state = State::new(options.clone());
 
@@ -80,7 +84,6 @@ pub fn add_zenoh_context(mut engine_state: EngineState, options: Config) -> Engi
         working_set.add_decl(Box::new(cmd::session::open::Open::new(state.clone())));
         working_set.add_decl(Box::new(cmd::session::close::Close::new(state.clone())));
 
-        working_set.add_decl(Box::new(cmd::log_path::LogPath::new(state.clone())));
         working_set.add_decl(Box::new(cmd::queryable::Queryable::new(state.clone())));
         working_set.add_decl(Box::new(cmd::scout::Scout::new(state.clone())));
         working_set.add_decl(Box::new(cmd::info::Info::new(state.clone())));
