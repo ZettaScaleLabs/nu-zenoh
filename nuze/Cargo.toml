@@ -9,6 +9,10 @@ readme = "../README.md"
 repository.workspace = true
 version.workspace = true
 
+[[bin]]
+name = "nuze-regions"
+path = "src/main.rs"
+
 [dependencies]
 clap = { workspace = true, features = ["derive"] }
 ctrlc = { workspace = true }

@@ -14,49 +14,46 @@
 use std::{fs::File, path::PathBuf};
 
 use nu_protocol::{
-    engine::{Call, Command, EngineState, Stack},
     PipelineData, ShellError, Signature, Type, Value,
+    engine::{Call, Command, EngineState, Stack},
 };
 use tracing_subscriber::{
-    fmt::format::FmtSpan, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter,
+    EnvFilter, fmt::format::FmtSpan, layer::SubscriberExt, util::SubscriberInitExt,
 };
 
-use crate::{signature_ext::SignatureExt, State};
+use crate::signature_ext::SignatureExt;
 
 #[derive(Clone)]
 pub(crate) struct LogPath {
-    _state: State,
     log_path: PathBuf,
 }
 
 impl LogPath {
-    pub(crate) fn new(state: State) -> Self {
-        let log_path = tempfile::tempdir()
-            .unwrap()
-            .keep()
-            .join("zenoh.log")
-            .to_path_buf();
+    pub(crate) fn new() -> Self {
+        let log_path = tempfile::tempdir().unwrap().keep().to_path_buf();
 
-        const ENV_FILTER_NAME: &str = "ZENOH_NU_LOG";
+        const ENV_FILTER_NAME: &str = "NUZE_LOG";
         const ENV_FILTER_DEFAULT: &str = "zenoh=trace";
 
         let env_filter = EnvFilter::try_from_env(ENV_FILTER_NAME)
             .unwrap_or_else(|_| EnvFilter::new(ENV_FILTER_DEFAULT));
 
-        let fmt = tracing_subscriber::fmt::layer()
-            .with_writer(File::create(&log_path).unwrap())
-            .with_ansi(false)
-            .with_span_events(FmtSpan::ACTIVE);
+        let fmt_json = tracing_subscriber::fmt::layer()
+            .with_writer(File::create(log_path.join("zenoh.log.json")).unwrap())
+            .json();
+
+        let fmt_pretty = tracing_subscriber::fmt::layer()
+            .with_writer(File::create(log_path.join("zenoh.log")).unwrap())
+            .with_span_events(FmtSpan::NEW)
+            .pretty();
 
         tracing_subscriber::registry()
             .with(env_filter)
-            .with(fmt)
+            .with(fmt_json)
+            .with(fmt_pretty)
             .init();
 
-        Self {
-            _state: state,
-            log_path,
-        }
+        Self { log_path }
     }
 }
 
