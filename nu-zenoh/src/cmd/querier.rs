@@ -11,14 +11,18 @@
 // Contributors:
 //   ZettaScale Zenoh Team, <zenoh@zettascale.tech>
 //
+use std::{mem, time::Duration};
+
+use flume::RecvTimeoutError;
 use nu_engine::CallExt;
 use nu_protocol::{
     engine::{Call, Command, EngineState, Stack},
-    record, IntoValue, PipelineData, ShellError, Signature, SyntaxShape, Type,
+    record, IntoValue, ListStream, PipelineData, PipelineIterator, ShellError, Signals, Signature,
+    Span, SyntaxShape, Type, Value,
 };
 use zenoh::Wait;
 
-use crate::{call_ext2::CallExt2, signature_ext::SignatureExt, State};
+use crate::{call_ext2::CallExt2, conv, signature_ext::SignatureExt, State};
 
 #[derive(Clone)]
 pub(crate) struct Querier {
@@ -48,7 +52,7 @@ impl Command for Querier {
             .target()
             .consolidation()
             .named("timeout", SyntaxShape::Duration, "Query timeout", None)
-            .input_output_type(Type::Any, Type::Any)
+            .input_output_type(Type::Any, Type::list(Type::list(Type::record())))
     }
 
     fn description(&self) -> &str {
@@ -62,6 +66,7 @@ impl Command for Querier {
         call: &Call,
         input: PipelineData,
     ) -> Result<PipelineData, ShellError> {
+        let span = call.head;
         let key = call.req::<String>(engine_state, stack, 0)?;
 
         let querier = self
@@ -105,11 +110,75 @@ impl Command for Querier {
                     .with_label(format!("Declare querier failed: {e}"), call.head)
             })?;
 
-        for value in input {
-            querier.get().payload(value.as_str()?).wait().unwrap();
+        struct Iter {
+            input: PipelineIterator,
+            querier: zenoh::query::Querier<'static>,
+            receiver: Option<flume::Receiver<zenoh::query::Reply>>,
+            signals: Signals,
+            buffer: Vec<Value>,
+            span: Span,
         }
 
-        Ok(nu_protocol::PipelineData::empty())
+        impl Iterator for Iter {
+            type Item = Value;
+
+            fn next(&mut self) -> Option<Self::Item> {
+                loop {
+                    if self.signals.interrupted() {
+                        return None;
+                    }
+
+                    match self.receiver.as_ref().map(|r| {
+                        r.recv_timeout(Duration::from_millis(50))
+                            .map(|r| r.into_result())
+                    }) {
+                        None => {
+                            let input = self.input.next()?;
+                            let Ok(payload) = input.as_str() else {
+                                continue;
+                            };
+                            const QUERY_CHANNEL_SIZE: usize = 256;
+                            let receiver = self
+                                .querier
+                                .get()
+                                .payload(payload)
+                                .with(flume::bounded(QUERY_CHANNEL_SIZE))
+                                .wait()
+                                .unwrap();
+                            self.receiver.replace(receiver);
+                        }
+                        Some(Ok(Ok(sample))) => self
+                            .buffer
+                            .push(conv::sample_to_record_value(sample, self.span)),
+                        Some(Ok(Err(reply_err))) => self
+                            .buffer
+                            .push(conv::reply_error_to_error_value(reply_err, self.span)),
+                        Some(Err(RecvTimeoutError::Timeout)) => continue,
+                        Some(Err(RecvTimeoutError::Disconnected)) => {
+                            let _ = self.receiver.take();
+                            let values = mem::take(&mut self.buffer);
+                            return Some(Value::list(values, self.span));
+                        }
+                    }
+                }
+            }
+        }
+
+        let signals = engine_state.signals().clone();
+
+        Ok(ListStream::new(
+            Iter {
+                input: input.into_iter(),
+                querier,
+                receiver: None,
+                signals: signals.clone(),
+                buffer: Vec::default(),
+                span,
+            },
+            span,
+            signals.clone(),
+        )
+        .into())
     }
 }
 
