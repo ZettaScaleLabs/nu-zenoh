@@ -56,4 +56,10 @@ pub(crate) struct Args {
         help = "Don't open a 'default' session"
     )]
     pub no_default_session: bool,
+    #[arg(
+        short = 'I',
+        long = "include-path",
+        help = "Comma-delimited list of module include paths"
+    )]
+    pub include_path: Option<String>,
 }

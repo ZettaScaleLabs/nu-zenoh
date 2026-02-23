@@ -32,6 +32,7 @@ mod signature_ext;
 pub struct Config {
     pub experimental_options: bool,
     pub no_default_session: bool,
+    pub include_paths: Vec<String>,
 }
 
 /// Adds extra context (e.g. aliases) as Nu source code

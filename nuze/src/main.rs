@@ -20,7 +20,7 @@ use std::{
 use clap::Parser;
 use nu_protocol::{
     engine::{EngineState, Stack},
-    BannerKind, Config, PipelineData, Signals,
+    BannerKind, Config, PipelineData, Signals, Span, Value,
 };
 
 mod args;
@@ -29,9 +29,17 @@ fn main() {
     let entire_start_time = Instant::now();
     let args = args::Args::parse();
 
+    let include_paths = args
+        .include_path
+        .iter()
+        .flat_map(|s| s.split(':'))
+        .map(|s| s.to_string())
+        .collect::<Vec<_>>();
+
     let options = nu_zenoh::Config {
         experimental_options: args.experimental_options,
         no_default_session: args.no_default_session,
+        include_paths,
     };
 
     let (mut engine_state, mut stack) = nu_context(options);
@@ -105,6 +113,17 @@ fn nu_context(options: nu_zenoh::Config) -> (EngineState, Stack) {
     let stack = Stack::new();
 
     let mut engine_state = nu_cmd_lang::create_default_context();
+    engine_state.add_env_var(
+        "NU_LIB_DIRS".to_string(),
+        Value::list(
+            options
+                .include_paths
+                .iter()
+                .map(|p| Value::string(p, Span::unknown()))
+                .collect(),
+            Span::unknown(),
+        ),
+    );
     engine_state.set_config(config);
     engine_state = nu_command::add_shell_command_context(engine_state);
     engine_state = nu_cmd_extra::add_extra_command_context(engine_state);
