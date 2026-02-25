@@ -22,7 +22,10 @@ use nu_protocol::{
 };
 use zenoh::Wait;
 
-use crate::{call_ext2::CallExt2, conv, signature_ext::SignatureExt, State};
+use crate::{
+    call_ext2::CallExt2, conv, interruptible_channel::InterruptibleChannel,
+    signature_ext::SignatureExt, State,
+};
 
 #[derive(Clone)]
 pub(crate) struct Querier {
@@ -183,19 +186,19 @@ impl Command for Querier {
 }
 
 #[derive(Clone)]
-pub(crate) struct MatchingStatus {
+pub(crate) struct MatchingListener {
     state: State,
 }
 
-impl MatchingStatus {
+impl MatchingListener {
     pub(crate) fn new(state: State) -> Self {
         Self { state }
     }
 }
 
-impl Command for MatchingStatus {
+impl Command for MatchingListener {
     fn name(&self) -> &str {
-        "zenoh querier matching-status"
+        "zenoh querier matching-listener"
     }
 
     fn signature(&self) -> Signature {
@@ -205,11 +208,11 @@ impl Command for MatchingStatus {
             .keyexpr()
             .allowed_destination()
             .target()
-            .input_output_type(Type::Nothing, Type::record())
+            .input_output_type(Type::Nothing, Type::list(Type::record()))
     }
 
     fn description(&self) -> &str {
-        "Returns `true` if there are matching queryables"
+        "Returns a stream of matching status updates for a querier"
     }
 
     fn run(
@@ -219,41 +222,58 @@ impl Command for MatchingStatus {
         call: &Call,
         _input: PipelineData,
     ) -> Result<PipelineData, ShellError> {
+        const MATCHING_CHANNEL_SIZE: usize = 256;
+        let (tx, rx) = flume::bounded(MATCHING_CHANNEL_SIZE);
+
+        let span = call.head;
         let key = call.req::<String>(engine_state, stack, 0)?;
 
-        let querier = self
+        let (querier, listener) = self
             .state
-            .with_session(&call.session(engine_state, stack)?, |sess| {
-                let mut querier = sess.declare_querier(key);
+            .with_session(
+                &call.session(engine_state, stack)?,
+                move |sess| -> zenoh::Result<_> {
+                    let mut querier = sess.declare_querier(key);
 
-                if let Some(destination) = call.allowed_destination(engine_state, stack)? {
-                    querier = querier.allowed_destination(destination);
-                }
+                    if let Some(destination) = call.allowed_destination(engine_state, stack)? {
+                        querier = querier.allowed_destination(destination);
+                    }
 
-                if let Some(target) = call.target(engine_state, stack)? {
-                    querier = querier.target(target);
-                }
+                    if let Some(target) = call.target(engine_state, stack)? {
+                        querier = querier.target(target);
+                    }
 
-                querier.wait()
-            })?
+                    let querier = querier.wait()?;
+                    let listener = querier
+                        .matching_listener()
+                        .callback(move |status| {
+                            let _ = tx.send(status);
+                        })
+                        .wait()?;
+
+                    Ok((querier, listener))
+                },
+            )?
             .map_err(|e| {
-                nu_protocol::LabeledError::new("Failed to declare querier")
-                    .with_label(format!("Failed to declare querier: {e}"), call.head)
+                nu_protocol::LabeledError::new("Failed to declare querier matching listener")
+                    .with_label(
+                        format!("Failed to declare querier matching listener: {e}"),
+                        call.head,
+                    )
             })?;
 
-        let status = querier.matching_status().wait().map_err(|e| {
-            nu_protocol::LabeledError::new("Failed to get querier matching status").with_label(
-                format!("Failed to get querier matching status: {e}"),
-                call.head,
-            )
-        })?;
-
-        Ok(nu_protocol::PipelineData::Value(
+        let iter = InterruptibleChannel::with_data(
+            rx,
+            engine_state.signals().clone(),
+            (querier, listener),
+        )
+        .map(move |status| {
             record!(
-                "matching" => status.matching().into_value(call.head),
+                "matching" => status.matching().into_value(span),
             )
-            .into_value(call.head),
-            None,
-        ))
+            .into_value(span)
+        });
+
+        Ok(ListStream::new(iter, call.head, engine_state.signals().clone()).into())
     }
 }

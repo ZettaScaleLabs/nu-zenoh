@@ -41,7 +41,7 @@ impl Command for Queryable {
 
     fn signature(&self) -> Signature {
         Signature::build(self.name())
-            .input_output_type(Type::Nothing, Type::Nothing)
+            .input_output_type(Type::Nothing, Type::list(Type::record()))
             .session()
             .zenoh_category()
             .keyexpr()

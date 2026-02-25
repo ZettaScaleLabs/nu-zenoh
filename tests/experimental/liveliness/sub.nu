@@ -10,8 +10,8 @@ zenoh open -s "2"
 let t2 = zenoh liveliness declare-token -s "2" test/2
 sleep 100ms
 
-assert equal (zenoh liveliness get test/* -s "1" | get keyexpr | sort) ["test/1", "test/2"]
-assert equal (zenoh liveliness get test/* -s "2" | get keyexpr | sort) ["test/1", "test/2"]
+assert equal (zenoh liveliness get test/* -s "1" | get keyexpr | sort) ["test/1" "test/2"]
+assert equal (zenoh liveliness get test/* -s "2" | get keyexpr | sort) ["test/1" "test/2"]
 
 zenoh liveliness undeclare-token $t2
 sleep 100ms

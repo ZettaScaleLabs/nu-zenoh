@@ -61,10 +61,11 @@ pub fn add_zenoh_context(mut engine_state: EngineState, options: Config) -> Engi
             working_set.add_decl(Box::new(
                 cmd::liveliness::undeclare_token::UndeclareToken::new(state.clone()),
             ));
+            working_set.add_decl(Box::new(cmd::liveliness::get::Get::new(state.clone())));
             working_set.add_decl(Box::new(cmd::liveliness::sub::Sub::new(state.clone())));
 
-            working_set.add_decl(Box::new(cmd::pub_::MatchingStatus::new(state.clone())));
-            working_set.add_decl(Box::new(cmd::querier::MatchingStatus::new(state.clone())));
+            working_set.add_decl(Box::new(cmd::pub_::MatchingListener::new(state.clone())));
+            working_set.add_decl(Box::new(cmd::querier::MatchingListener::new(state.clone())));
 
             working_set.add_decl(Box::new(cmd::decode::scouting_msg::ScoutingMsg));
         }
@@ -75,7 +76,6 @@ pub fn add_zenoh_context(mut engine_state: EngineState, options: Config) -> Engi
         working_set.add_decl(Box::new(cmd::sub::Sub::new(state.clone())));
         working_set.add_decl(Box::new(cmd::zid::Zid::new(state.clone())));
 
-        working_set.add_decl(Box::new(cmd::liveliness::get::Get::new(state.clone())));
         working_set.add_decl(Box::new(cmd::session::list::List::new(state.clone())));
         working_set.add_decl(Box::new(cmd::session::open::Open::new(state.clone())));
         working_set.add_decl(Box::new(cmd::session::close::Close::new(state.clone())));

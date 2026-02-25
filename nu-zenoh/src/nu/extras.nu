@@ -13,7 +13,7 @@
 #   ZettaScale Zenoh Team, <zenoh@zettascale.tech>
 #
 
-$env.PROMPT_COMMAND = { ||
+$env.PROMPT_COMMAND = {||
     if (zenoh session list | where name == 'default' | is-not-empty) {
         $"(ansi light_blue_bold)(zenoh zid --short)(ansi reset)"
     } else {

@@ -14,11 +14,14 @@
 use nu_engine::CallExt;
 use nu_protocol::{
     engine::{Call, Command, EngineState, Stack},
-    record, IntoValue, PipelineData, ShellError, Signature, Type,
+    record, IntoValue, ListStream, PipelineData, ShellError, Signature, Type,
 };
 use zenoh::Wait;
 
-use crate::{call_ext2::CallExt2, signature_ext::SignatureExt, State};
+use crate::{
+    call_ext2::CallExt2, interruptible_channel::InterruptibleChannel, signature_ext::SignatureExt,
+    State,
+};
 
 #[derive(Clone)]
 pub(crate) struct Pub {
@@ -108,19 +111,19 @@ impl Command for Pub {
 }
 
 #[derive(Clone)]
-pub(crate) struct MatchingStatus {
+pub(crate) struct MatchingListener {
     state: State,
 }
 
-impl MatchingStatus {
+impl MatchingListener {
     pub(crate) fn new(state: State) -> Self {
         Self { state }
     }
 }
 
-impl Command for MatchingStatus {
+impl Command for MatchingListener {
     fn name(&self) -> &str {
-        "zenoh pub matching-status"
+        "zenoh pub matching-listener"
     }
 
     fn signature(&self) -> Signature {
@@ -129,11 +132,11 @@ impl Command for MatchingStatus {
             .zenoh_category()
             .keyexpr()
             .allowed_destination()
-            .input_output_type(Type::Nothing, Type::record())
+            .input_output_type(Type::Nothing, Type::list(Type::record()))
     }
 
     fn description(&self) -> &str {
-        "Returns `true` if there are matching subscribers"
+        "Returns a stream of matching status updates for a publisher"
     }
 
     fn run(
@@ -143,37 +146,51 @@ impl Command for MatchingStatus {
         call: &Call,
         _input: PipelineData,
     ) -> Result<PipelineData, ShellError> {
+        const MATCHING_CHANNEL_SIZE: usize = 256;
+        let (tx, rx) = flume::bounded(MATCHING_CHANNEL_SIZE);
+
+        let span = call.head;
         let key = call.req::<String>(engine_state, stack, 0)?;
 
-        let pub_ = self
+        let (pub_, listener) = self
             .state
-            .with_session(&call.session(engine_state, stack)?, |sess| {
-                let mut pub_ = sess.declare_publisher(key);
+            .with_session(
+                &call.session(engine_state, stack)?,
+                move |sess| -> zenoh::Result<_> {
+                    let mut pub_ = sess.declare_publisher(key);
 
-                if let Some(destination) = call.allowed_destination(engine_state, stack)? {
-                    pub_ = pub_.allowed_destination(destination);
-                }
+                    if let Some(destination) = call.allowed_destination(engine_state, stack)? {
+                        pub_ = pub_.allowed_destination(destination);
+                    }
 
-                pub_.wait()
-            })?
+                    let pub_ = pub_.wait()?;
+                    let listener = pub_
+                        .matching_listener()
+                        .callback(move |status| {
+                            let _ = tx.send(status);
+                        })
+                        .wait()?;
+
+                    Ok((pub_, listener))
+                },
+            )?
             .map_err(|e| {
-                nu_protocol::LabeledError::new("Failed to declare publisher")
-                    .with_label(format!("Failed to declare publisher: {e}"), call.head)
+                nu_protocol::LabeledError::new("Failed to declare publisher matching listener")
+                    .with_label(
+                        format!("Failed to declare publisher matching listener: {e}"),
+                        call.head,
+                    )
             })?;
 
-        let status = pub_.matching_status().wait().map_err(|e| {
-            nu_protocol::LabeledError::new("Failed to get publisher matching status").with_label(
-                format!("Failed to get publisher matching status: {e}"),
-                call.head,
-            )
-        })?;
+        let iter =
+            InterruptibleChannel::with_data(rx, engine_state.signals().clone(), (pub_, listener))
+                .map(move |status| {
+                    record!(
+                        "matching" => status.matching().into_value(span),
+                    )
+                    .into_value(span)
+                });
 
-        Ok(nu_protocol::PipelineData::Value(
-            record!(
-                "matching" => status.matching().into_value(call.head),
-            )
-            .into_value(call.head),
-            None,
-        ))
+        Ok(ListStream::new(iter, call.head, engine_state.signals().clone()).into())
     }
 }

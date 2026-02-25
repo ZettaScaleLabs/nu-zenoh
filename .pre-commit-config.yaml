@@ -6,7 +6,12 @@ repos:
         entry: bash -c 'rustfmt --config "unstable_features=true,imports_granularity=Crate,group_imports=StdExternalCrate,skip_children=true" $(git ls-files '*.rs')'
         language: system
         types: [rust]
+      - id: fmt-nu
+        name: fmt-nu
+        entry: bash -c 'topiary format **/*.nu'
+        language: system
   - repo: https://github.com/ComPWA/taplo-pre-commit.git
     rev: v0.9.3
     hooks:
       - id: taplo-format
+        name: fmt-toml
