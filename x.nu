@@ -6,6 +6,10 @@ def main [] {
     help main
 }
 
+def "main nufmt" [] {
+    topiary format **/*.nu
+}
+
 def "main test" [] {
     cd $cwd
 
