@@ -14,18 +14,17 @@
 use std::convert::TryFrom;
 
 use nu_protocol::{
-    IntoValue, PipelineData, ShellError, Signature, Span, Type, Value,
     engine::{Call, Command, EngineState, Stack},
-    record,
+    record, IntoValue, PipelineData, ShellError, Signature, Span, Type, Value,
 };
 use zenoh_codec::{RCodec, Zenoh080};
 use zenoh_protocol::{
     common::ZExtBody,
     core::{Field, Locator, Resolution, WhatAmI, WireExpr},
-    network::{NetworkBody, declare::DeclareBody, interest::InterestMode, oam::id::OAM_LINKSTATE},
+    network::{declare::DeclareBody, interest::InterestMode, oam::id::OAM_LINKSTATE, NetworkBody},
     transport::{
-        Fragment, Frame, InitAck, InitSyn, Join, OpenAck, OpenSyn, TransportBody, TransportMessage,
-        close::reason_to_str,
+        close::reason_to_str, Fragment, Frame, InitAck, InitSyn, Join, OpenAck, OpenSyn,
+        TransportBody, TransportMessage,
     },
 };
 
