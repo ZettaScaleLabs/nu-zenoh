@@ -67,6 +67,7 @@ pub fn add_zenoh_context(mut engine_state: EngineState, options: Config) -> Engi
             working_set.add_decl(Box::new(cmd::pub_::MatchingListener::new(state.clone())));
             working_set.add_decl(Box::new(cmd::querier::MatchingListener::new(state.clone())));
 
+            working_set.add_decl(Box::new(cmd::decode::transport_msg::TransportMsg));
             working_set.add_decl(Box::new(cmd::decode::scouting_msg::ScoutingMsg));
         }
 
