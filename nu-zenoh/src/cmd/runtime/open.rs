@@ -16,6 +16,7 @@ use std::path::PathBuf;
 use nu_engine::CallExt;
 use nu_protocol::{
     engine::{Call, Command, EngineState, Stack},
+    shell_error::generic::GenericError,
     PipelineData, ShellError, Signature, SyntaxShape, Type, Value,
 };
 use zenoh::{
@@ -96,25 +97,25 @@ impl Command for Open {
                     })?
                 }
                 _ => {
-                    return Err(ShellError::GenericError {
-                        error: "Invalid config type".to_string(),
-                        msg: "Config must be a record".to_string(),
-                        span: Some(call.head),
-                        help: Some("Provide a record with Zenoh configuration options".to_string()),
-                        inner: vec![],
-                    });
+                    return Err(ShellError::Generic(
+                        GenericError::new(
+                            "Invalid config type",
+                            "Config must be a record",
+                            call.head,
+                        )
+                        .with_help("Provide a record with Zenoh configuration options"),
+                    ));
                 }
             },
             (Some(_), Some(_)) => {
-                return Err(ShellError::GenericError {
-                    error: "Conflicting arguments".to_string(),
-                    msg: "Cannot specify both --file and config record".to_string(),
-                    span: Some(call.head),
-                    help: Some(
-                        "Use either --file <path> or provide a config record, not both".to_string(),
-                    ),
-                    inner: vec![],
-                });
+                return Err(ShellError::Generic(
+                    GenericError::new(
+                        "Conflicting arguments",
+                        "Cannot specify both --file and config record",
+                        call.head,
+                    )
+                    .with_help("Use either --file <path> or provide a config record, not both"),
+                ));
             }
             (None, None) => zenoh::Config::default(),
         };

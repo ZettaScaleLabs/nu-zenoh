@@ -16,6 +16,7 @@ use std::path::PathBuf;
 use nu_engine::CallExt;
 use nu_protocol::{
     engine::{Call, Command, EngineState, Stack},
+    shell_error::generic::GenericError,
     LabeledError, PipelineData, ShellError, Signature, SyntaxShape, Type, Value,
 };
 use zenoh::{session, Wait};
@@ -96,13 +97,14 @@ impl Command for Open {
                     })?
                 }
                 _ => {
-                    return Err(ShellError::GenericError {
-                        error: "Invalid config type".to_string(),
-                        msg: "Config must be a record".to_string(),
-                        span: Some(call.head),
-                        help: Some("Provide a record with Zenoh configuration options".to_string()),
-                        inner: vec![],
-                    });
+                    return Err(ShellError::Generic(
+                        GenericError::new(
+                            "Invalid config type",
+                            "Config must be a record",
+                            call.head,
+                        )
+                        .with_help("Provide a record with Zenoh configuration options"),
+                    ));
                 }
             },
             (None, None, Some(runtime_name)) => {
@@ -136,14 +138,11 @@ impl Command for Open {
             }
             (None, None, None) => zenoh::Config::default(),
             _ => {
-                return Err(ShellError::GenericError {
-                    error: "Conflicting arguments".to_string(),
-                    msg: "Only one of RECORD, --config-file or --runtime can be specified"
-                        .to_string(),
-                    span: Some(call.head),
-                    help: None,
-                    inner: vec![],
-                });
+                return Err(ShellError::Generic(GenericError::new(
+                    "Conflicting arguments",
+                    "Only one of RECORD, --config-file or --runtime can be specified",
+                    call.head,
+                )));
             }
         };
 

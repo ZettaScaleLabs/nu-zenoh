@@ -17,8 +17,9 @@ use std::time::Instant;
 use nu_engine::CallExt;
 use nu_protocol::{
     engine::{Call, Command, EngineState, Stack},
-    record, IntoValue, ListStream, PipelineData, ShellError, Signature, Span, SyntaxShape, Type,
-    Value,
+    record,
+    shell_error::generic::GenericError,
+    IntoValue, ListStream, PipelineData, ShellError, Signature, Span, SyntaxShape, Type, Value,
 };
 use zenoh::{config::WhatAmIMatcher, scouting::Hello, Config, Wait};
 
@@ -79,13 +80,10 @@ impl Command for Scout {
                 })?
             }
             Some(_) => {
-                return Err(ShellError::GenericError {
-                    error: "Invalid config type".to_string(),
-                    msg: "Config must be a record".to_string(),
-                    span: Some(call.head),
-                    help: Some("Provide a record with Zenoh configuration options".to_string()),
-                    inner: vec![],
-                });
+                return Err(ShellError::Generic(
+                    GenericError::new("Invalid config type", "Config must be a record", call.head)
+                        .with_help("Provide a record with Zenoh configuration options"),
+                ));
             }
             None => Config::default(),
         };

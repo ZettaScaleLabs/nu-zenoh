@@ -11,7 +11,10 @@
 // Contributors:
 //   ZettaScale Zenoh Team, <zenoh@zettascale.tech>
 //
-use nu_protocol::{ast, engine::EngineState, record, IntoValue, Record, ShellError, Span, Value};
+use nu_protocol::{
+    ast, engine::EngineState, record, shell_error::generic::GenericError, IntoValue, Record,
+    ShellError, Span, Value,
+};
 use zenoh::{bytes::ZBytes, query::Query};
 
 /// Helper function to convert bytes to Nu value (string if valid UTF-8, otherwise bytes)
@@ -27,13 +30,10 @@ pub(crate) fn value_to_bytes(value: &Value) -> Result<ZBytes, nu_protocol::Shell
     match value {
         Value::String { val, .. } => Ok(ZBytes::from(val)),
         Value::Binary { val, .. } => Ok(ZBytes::from(val)),
-        _ => Err(nu_protocol::ShellError::GenericError {
-            error: "Invalid value type".to_string(),
-            msg: "Value must be a String or Binary".to_string(),
-            span: None,
-            help: None,
-            inner: vec![],
-        }),
+        _ => Err(ShellError::Generic(GenericError::new_internal(
+            "Invalid value type",
+            "Value must be a String or Binary",
+        ))),
     }
 }
 
@@ -75,18 +75,13 @@ pub(crate) fn reply_error_to_error_value(
     reply_error: zenoh::query::ReplyError,
     span: nu_protocol::Span,
 ) -> Value {
+    let error_msg = reply_error
+        .payload()
+        .try_to_string()
+        .map(|s| format!("Reply error: '{s}'"))
+        .unwrap_or_else(|err| format!("<Non UTF-8 error payload: {err}>"));
     Value::error(
-        ShellError::GenericError {
-            error: reply_error
-                .payload()
-                .try_to_string()
-                .map(|s| format!("Reply error: '{s}'"))
-                .unwrap_or_else(|err| format!("<Non UTF-8 error payload: {err}>")),
-            msg: "".to_string(),
-            span: None,
-            help: None,
-            inner: vec![],
-        },
+        ShellError::Generic(GenericError::new_internal(error_msg, "")),
         span,
     )
 }

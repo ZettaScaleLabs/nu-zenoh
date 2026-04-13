@@ -13,7 +13,9 @@
 //
 use nu_protocol::{
     engine::{Call, Command, EngineState, Stack},
-    record, IntoValue, PipelineData, ShellError, Signature, Span, Type, Value,
+    record,
+    shell_error::generic::GenericError,
+    IntoValue, PipelineData, ShellError, Signature, Span, Type, Value,
 };
 use zenoh_codec::{RCodec, Zenoh080};
 use zenoh_protocol::scouting::{HelloProto, Scout, ScoutingBody, ScoutingMessage};
@@ -50,13 +52,10 @@ impl Command for ScoutingMsg {
         let bytes = match input {
             PipelineData::Value(Value::Binary { val, .. }, ..) => val,
             _ => {
-                return Err(ShellError::GenericError {
-                    error: "Expected binary input".to_string(),
-                    msg: "Input must be binary data".to_string(),
-                    span: Some(span),
-                    help: Some("Pipe binary data to this command".to_string()),
-                    inner: vec![],
-                });
+                return Err(ShellError::Generic(
+                    GenericError::new("Expected binary input", "Input must be binary data", span)
+                        .with_help("Pipe binary data to this command"),
+                ));
             }
         };
 

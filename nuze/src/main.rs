@@ -97,8 +97,13 @@ fn main() {
         );
     }
 
-    if let Err(err) = nu_cli::evaluate_repl(&mut engine_state, stack, None, None, entire_start_time)
-    {
+    if let Err(err) = nu_cli::evaluate_repl(
+        &mut engine_state,
+        stack,
+        None,
+        None,
+        entire_start_time.into(),
+    ) {
         eprintln!("failed to start the REPL: {err}");
         process::exit(1);
     }

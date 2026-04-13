@@ -15,7 +15,9 @@ use std::convert::TryFrom;
 
 use nu_protocol::{
     engine::{Call, Command, EngineState, Stack},
-    record, IntoValue, PipelineData, ShellError, Signature, Span, Type, Value,
+    record,
+    shell_error::generic::GenericError,
+    IntoValue, PipelineData, ShellError, Signature, Span, Type, Value,
 };
 use zenoh_codec::{RCodec, Zenoh080};
 use zenoh_protocol::{
@@ -60,13 +62,10 @@ impl Command for TransportMsg {
         let bytes = match input {
             PipelineData::Value(Value::Binary { val, .. }, ..) => val,
             _ => {
-                return Err(ShellError::GenericError {
-                    error: "Expected binary input".to_string(),
-                    msg: "Input must be binary data".to_string(),
-                    span: Some(span),
-                    help: Some("Pipe binary data to this command".to_string()),
-                    inner: vec![],
-                });
+                return Err(ShellError::Generic(
+                    GenericError::new("Expected binary input", "Input must be binary data", span)
+                        .with_help("Pipe binary data to this command"),
+                ));
             }
         };
 
@@ -480,13 +479,11 @@ fn decode_link_state_list(bytes: &[u8], span: Span) -> Value {
         Ok(l) => l,
         Err(_) => {
             return Value::error(
-                ShellError::GenericError {
-                    error: "LinkStateList decode error".to_string(),
-                    msg: "could not read list length".to_string(),
-                    span: Some(span),
-                    help: None,
-                    inner: vec![],
-                },
+                ShellError::Generic(GenericError::new(
+                    "LinkStateList decode error",
+                    "could not read list length",
+                    span,
+                )),
                 span,
             );
         }
@@ -513,13 +510,11 @@ fn decode_link_state(reader: &mut &[u8], codec: Zenoh080, span: Span) -> Result<
         ($ty:ty, $label:literal) => {
             RCodec::<$ty, _>::read(codec, reader).map_err(|_| {
                 Value::error(
-                    ShellError::GenericError {
-                        error: "LinkState decode error".to_string(),
-                        msg: concat!("could not read field: ", $label).to_string(),
-                        span: Some(span),
-                        help: None,
-                        inner: vec![],
-                    },
+                    ShellError::Generic(GenericError::new(
+                        "LinkState decode error",
+                        concat!("could not read field: ", $label),
+                        span,
+                    )),
                     span,
                 )
             })
