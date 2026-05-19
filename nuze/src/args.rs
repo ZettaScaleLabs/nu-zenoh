@@ -16,9 +16,7 @@ use std::path::PathBuf;
 #[derive(clap::Parser, Clone, Debug)]
 #[command(
     version=env!("CARGO_PKG_VERSION"),
-    about="Zenoh Interactive Shell",
-    long_about="Zenoh Interactive Shell (zetta-r2i) is a standalone command-line \
-        interpreter that extends Nu with the Zenoh plugin.",
+    about="Nuze: a Nu shell for Zenoh",
 )]
 pub(crate) struct Args {
     #[arg(
